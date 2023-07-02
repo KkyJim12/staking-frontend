@@ -67,12 +67,32 @@ function App() {
     setCurrentAccount("");
   };
 
+  const switchNetwork = async () => {
+    await window.ethereum.request({
+      method: "wallet_addEthereumChain",
+      params: [
+        {
+          chainId: '0x5',
+          rpcUrls: ["https://goerli.infura.io/v3/137155fe1d3e4350b7202fec359e093b"],
+          chainName: "Goerli test network",
+          nativeCurrency: {
+            name: "Goerli ETH",
+            symbol: "GorETH",
+            decimals: 18,
+          },
+          blockExplorerUrls: ["https://goerli.etherscan.io"],
+        },
+      ],
+    });
+  };
+
   return (
     <>
-      <div className="w-screen h-screen flex justify-center items-center bg-gradient-to-r from-purple-500 to-pink-500 relative">
+      <div className="relative flex items-center justify-center w-screen h-screen bg-gradient-to-r from-purple-500 to-pink-500">
         {currentAccount ? (
-          <div className="flex space-x-2 right-5 top-5 absolute">
+          <div className="absolute flex space-x-2 right-5 top-5">
             <button
+              onClick={switchNetwork}
               type="button"
               className={
                 chainname === "goerli"
@@ -84,7 +104,7 @@ function App() {
             </button>
             <button
               type="button"
-              className="bg-gray-500 text-white px-4 py-2 rounded shadow-md text-xl hover:bg-gray-600"
+              className="px-4 py-2 text-xl text-white bg-gray-500 rounded shadow-md hover:bg-gray-600"
             >
               {currentAccount.substring(0, 4) +
                 "..." +
@@ -92,14 +112,14 @@ function App() {
             </button>
             <button
               type="button"
-              className="bg-purple-500 text-white px-4 py-2 rounded shadow-md text-xl hover:bg-purple-600"
+              className="px-4 py-2 text-xl text-white bg-purple-500 rounded shadow-md hover:bg-purple-600"
             >
               {balance.substring(0, 4) + " ETH"}
             </button>
             <button
               onClick={onClickDisconnect}
               type="button"
-              className="bg-red-500 text-white px-4 py-2 rounded shadow-md text-xl hover:bg-red-600"
+              className="px-4 py-2 text-xl text-white bg-red-500 rounded shadow-md hover:bg-red-600"
             >
               Disconnect
             </button>
@@ -108,25 +128,25 @@ function App() {
           <button
             onClick={onClickConnect}
             type="button"
-            className="bg-red-500 text-white px-4 py-2 rounded shadow-md text-xl hover:bg-red-600 absolute right-5 top-5"
+            className="absolute px-4 py-2 text-xl text-white bg-red-500 rounded shadow-md hover:bg-red-600 right-5 top-5"
           >
             Connect to Metamask
           </button>
         )}
-        <div className="flex flex-col space-y-8 w-full h-1/2 items-center">
+        <div className="flex flex-col items-center w-full space-y-8 h-1/2">
           <h1 className="text-6xl font-bold">Staking</h1>
-          <div className="h-60 w-1/2 rounded-2xl bg-white bg-opacity-30 backdrop-blur-md flex flex-col space-y-4 items-center justify-between py-10">
-            <div className="flex flex-col space-y-2 items-center">
+          <div className="flex flex-col items-center justify-between w-1/2 py-10 space-y-4 bg-white h-60 rounded-2xl bg-opacity-30 backdrop-blur-md">
+            <div className="flex flex-col items-center space-y-2">
               <h5 className="text-xl font-semibold">Miles Stone: 0</h5>
               <h5 className="text-xl font-semibold">Current Progress: 0</h5>
             </div>
-            <div className="flex flex-col space-y-4 w-full px-10">
-              <div className="rounded-full h-5 w-full bg-gray-700">
-                <div className="rounded-full h-5 w-1/2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
+            <div className="flex flex-col w-full px-10 space-y-4">
+              <div className="w-full h-5 bg-gray-700 rounded-full">
+                <div className="w-1/2 h-5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
               </div>
               <button
                 type="button"
-                className="bg-green-500 text-white px-4 py-2 rounded shadow-md text-xl hover:bg-green-600"
+                className="px-4 py-2 text-xl text-white bg-green-500 rounded shadow-md hover:bg-green-600"
               >
                 Stake
               </button>
