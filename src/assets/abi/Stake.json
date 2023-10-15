@@ -10,17 +10,16 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "Deposit",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
+          "internalType": "address",
+          "name": "_requestAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_actionType",
+          "type": "string"
+        },
         {
           "indexed": false,
           "internalType": "uint256",
@@ -28,7 +27,7 @@
           "type": "uint256"
         }
       ],
-      "name": "Withdraw",
+      "name": "UpdateLatestTransaction",
       "type": "event"
     },
     {
@@ -59,11 +58,70 @@
     },
     {
       "inputs": [],
+      "name": "getLatestFiveTransactions",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "requestAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "actionType",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Stake.Transaction[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "middlePool",
       "outputs": [
         {
           "internalType": "uint256",
           "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "transactions",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "requestAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "actionType",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
           "type": "uint256"
         }
       ],
