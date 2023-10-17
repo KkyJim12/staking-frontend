@@ -152,15 +152,6 @@ function App() {
     setCurrentAccount("");
   };
 
-  const getRPCErrorMessage = (err) => {
-    const open = err.stack.indexOf("{");
-    const close = err.stack.lastIndexOf("}");
-    const j_s = err.stack.substring(open, close + 1);
-    const j = JSON.parse(j_s);
-    const reason = j.data[Object.keys(j.data)[0]].reason;
-    return reason;
-  };
-
   const withdraw = async () => {
     if (chainId !== 5 || !amount || isProgressing) {
       return;
@@ -207,20 +198,24 @@ function App() {
 
     const stakingContract = new ethers.Contract(contractAddress, abi, provider);
 
-    const latestFiveTransactions =
-      await stakingContract.getLatestFiveTransactions();
-    const pool = await stakingContract.middlePool();
-    const myDepositAmount = await stakingContract._stakingBalance(
-      currentAccount
-    );
+    try {
+      const latestFiveTransactions =
+        await stakingContract.getLatestFiveTransactions();
+      const pool = await stakingContract.middlePool();
+      const myDepositAmount = await stakingContract._stakingBalance(
+        currentAccount
+      );
 
-    storeLatestFiveTransactions = latestFiveTransactions;
-    storeMiddlePool = ethers.BigNumber.from(pool);
-    storeMyDeposit = ethers.BigNumber.from(myDepositAmount);
+      storeLatestFiveTransactions = latestFiveTransactions;
+      storeMiddlePool = ethers.BigNumber.from(pool);
+      storeMyDeposit = ethers.BigNumber.from(myDepositAmount);
 
-    setTransactions(latestFiveTransactions);
-    setMiddlePool(ethers.BigNumber.from(pool));
-    setMyDeposit(ethers.BigNumber.from(myDepositAmount));
+      setTransactions(latestFiveTransactions);
+      setMiddlePool(ethers.BigNumber.from(pool));
+      setMyDeposit(ethers.BigNumber.from(myDepositAmount));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const switchNetwork = async () => {

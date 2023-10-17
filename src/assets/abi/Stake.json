@@ -1,53 +1,30 @@
 {
   "abi": [
-    {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
+    { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
     {
       "anonymous": false,
       "inputs": [
         {
           "indexed": false,
           "internalType": "address",
-          "name": "_requestAddress",
+          "name": "requestAddress",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "string",
-          "name": "_actionType",
+          "name": "actionType",
           "type": "string"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "_amount",
+          "name": "amount",
           "type": "uint256"
         }
       ],
       "name": "UpdateLatestTransaction",
       "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "_stakingBalance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
     },
     {
       "inputs": [],
@@ -72,11 +49,7 @@
               "name": "actionType",
               "type": "string"
             },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            }
+            { "internalType": "uint256", "name": "amount", "type": "uint256" }
           ],
           "internalType": "struct Stake.Transaction[]",
           "name": "",
@@ -89,24 +62,19 @@
     {
       "inputs": [],
       "name": "middlePool",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
       "stateMutability": "view",
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "name": "stakingBalance",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
       "name": "transactions",
       "outputs": [
         {
@@ -114,27 +82,15 @@
           "name": "requestAddress",
           "type": "address"
         },
-        {
-          "internalType": "string",
-          "name": "actionType",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
+        { "internalType": "string", "name": "actionType", "type": "string" },
+        { "internalType": "uint256", "name": "amount", "type": "uint256" }
       ],
       "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
+        { "internalType": "uint256", "name": "_amount", "type": "uint256" }
       ],
       "name": "withdraw",
       "outputs": [],
