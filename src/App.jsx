@@ -9,13 +9,17 @@ function App() {
   const [chainId, setChainId] = useState("");
   const [chainname, setChainName] = useState("");
   const [amount, setAmount] = useState("");
-  const [middlePool, setMiddlePool] = useState(0);
-  const [myDeposit, setMyDeposit] = useState(0);
+  const [middlePool, setMiddlePool] = useState(ethers.BigNumber.from(0));
+  const [myDeposit, setMyDeposit] = useState(ethers.BigNumber.from(0));
   const [provider, setProvider] = useState("");
   const [wsProvider, setWsProvider] = useState("");
   const [transactions, setTransactions] = useState([]);
   const [isProgressing, setIsProgressing] = useState(false);
   const [progressingType, setProgressingType] = useState("");
+
+  let storeLatestFiveTransactions = {};
+  let storeMiddlePool = ethers.BigNumber.from(0);
+  let storeMyDeposit = ethers.BigNumber.from(0);
 
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
   const socketProvider = import.meta.env.VITE_WS_URL;
@@ -78,54 +82,46 @@ function App() {
       stakingContract.on(
         "UpdateLatestTransaction",
         (requestAddress, actionType, amount) => {
-          if (currentAccount.toString() === requestAddress.toString()) {
-            setIsProgressing(false);
-            let newMyDepositValue;
-            if (actionType === "deposit") {
-              newMyDepositValue =
-                parseFloat(myDeposit).toFixed(2) +
-                parseFloat(ethers.utils.formatEther(amount.toString())).toFixed(
-                  2
-                );
-            } else {
-              newMyDepositValue =
-                parseFloat(myDeposit).toFixed(2) -
-                parseFloat(ethers.utils.formatEther(amount.toString())).toFixed(
-                  2
-                );
-            }
-            setMyDeposit(newMyDepositValue);
-          }
-
-          let newTransactions = [...transactions];
+          let newTransactions = [...storeLatestFiveTransactions];
           if (newTransactions.length >= 5) {
-            newTransactions.pop();
+            newTransactions.shift();
           }
 
-          newTransactions.unshift({
+          newTransactions.push({
             requestAddress: requestAddress,
             actionType: actionType,
             amount: amount,
           });
 
+          storeLatestFiveTransactions = newTransactions;
           setTransactions(newTransactions);
+
+          if (
+            ethers.utils.getAddress(currentAccount) ===
+            ethers.utils.getAddress(requestAddress)
+          ) {
+            let newMyDepositValue;
+            if (actionType === "deposit") {
+              newMyDepositValue = storeMyDeposit.add(amount);
+            } else {
+              newMyDepositValue = storeMyDeposit.sub(amount);
+            }
+
+            storeMyDeposit = newMyDepositValue;
+
+            setMyDeposit(newMyDepositValue);
+            setIsProgressing(false);
+          }
 
           let newMiddlePoolValue;
 
           if (actionType === "deposit") {
-            newMiddlePoolValue =
-              parseFloat(middlePool.toString()).toFixed(2) +
-              parseFloat(
-                ethers.utils.formatEther(amount.toString()).toString()
-              ).toFixed(2);
+            newMiddlePoolValue = storeMiddlePool.add(amount);
           } else {
-            newMiddlePoolValue =
-              parseFloat(middlePool.toString()).toFixed(2) -
-              parseFloat(
-                ethers.utils.formatEther(amount.toString()).toString()
-              ).toFixed(2);
+            newMiddlePoolValue = storeMiddlePool.sub(amount);
           }
 
+          storeMiddlePool = newMiddlePoolValue;
           setMiddlePool(newMiddlePoolValue);
         }
       );
@@ -156,7 +152,16 @@ function App() {
     setCurrentAccount("");
   };
 
-  const withdraw = () => {
+  const getRPCErrorMessage = (err) => {
+    const open = err.stack.indexOf("{");
+    const close = err.stack.lastIndexOf("}");
+    const j_s = err.stack.substring(open, close + 1);
+    const j = JSON.parse(j_s);
+    const reason = j.data[Object.keys(j.data)[0]].reason;
+    return reason;
+  };
+
+  const withdraw = async () => {
     if (chainId !== 5 || !amount || isProgressing) {
       return;
     }
@@ -167,9 +172,13 @@ function App() {
       provider.getSigner()
     );
 
-    stakingContract.withdraw(ethers.utils.parseEther(amount));
-    setIsProgressing(true);
-    setProgressingType("withdraw");
+    try {
+      await stakingContract.withdraw(ethers.utils.parseEther(amount));
+      setIsProgressing(true);
+      setProgressingType("withdraw");
+    } catch (error) {
+      console.log("Transaction will fail, error: ", error);
+    }
   };
 
   const deposit = () => {
@@ -182,9 +191,13 @@ function App() {
       provider.getSigner()
     );
 
-    stakingContract.deposit({ value: ethers.utils.parseEther(amount) });
-    setIsProgressing(true);
-    setProgressingType("deposit");
+    try {
+      stakingContract.deposit({ value: ethers.utils.parseEther(amount) });
+      setIsProgressing(true);
+      setProgressingType("deposit");
+    } catch (error) {
+      console.log("Transaction will fail, error: ", error);
+    }
   };
 
   const getData = async () => {
@@ -201,9 +214,13 @@ function App() {
       currentAccount
     );
 
+    storeLatestFiveTransactions = latestFiveTransactions;
+    storeMiddlePool = ethers.BigNumber.from(pool);
+    storeMyDeposit = ethers.BigNumber.from(myDepositAmount);
+
     setTransactions(latestFiveTransactions);
-    setMiddlePool(ethers.utils.formatEther(pool.toString()));
-    setMyDeposit(ethers.utils.formatEther(myDepositAmount.toString()));
+    setMiddlePool(ethers.BigNumber.from(pool));
+    setMyDeposit(ethers.BigNumber.from(myDepositAmount));
   };
 
   const switchNetwork = async () => {
@@ -294,9 +311,12 @@ function App() {
                     </div>
                   </div>
                 </div>
-                {[...transactions].reverse().map((transaction) => {
+                {[...transactions].reverse().map((transaction, index) => {
                   return (
-                    <div className="grid w-full h-10 grid-cols-12 gap-3 rounded cursor-pointer bg-gradient-to-r from-purple-300 to-pink-300 hover:from-purple-500 hover:to-pink-500">
+                    <div
+                      key={index}
+                      className="grid w-full h-10 grid-cols-12 gap-3 rounded cursor-pointer bg-gradient-to-r from-purple-300 to-pink-300 hover:from-purple-500 hover:to-pink-500"
+                    >
                       <div className="col-span-4">
                         <div className="flex items-center h-full px-4">
                           {transaction.requestAddress &&
@@ -317,9 +337,7 @@ function App() {
                       <div className="col-span-4">
                         <div className="flex items-center justify-end h-full px-4">
                           {transaction.amount &&
-                            ethers.utils.formatEther(
-                              transaction.amount.toString()
-                            )}
+                            ethers.utils.formatEther(transaction.amount)}
                         </div>
                       </div>
                     </div>
@@ -347,10 +365,10 @@ function App() {
                   ) : (
                     <div className="flex flex-col space-y-2">
                       <h5 className="text-xl font-semibold">
-                        Middle Pool: {middlePool}
+                        Middle Pool: {ethers.utils.formatEther(middlePool)}
                       </h5>
                       <h5 className="text-xl font-semibold">
-                        Your Deposit: {myDeposit}
+                        Your Deposit: {ethers.utils.formatEther(myDeposit)}
                       </h5>
                     </div>
                   )}
