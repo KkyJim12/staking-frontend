@@ -202,7 +202,7 @@ function App() {
       const latestFiveTransactions =
         await stakingContract.getLatestFiveTransactions();
       const pool = await stakingContract.middlePool();
-      const myDepositAmount = await stakingContract._stakingBalance(
+      const myDepositAmount = await stakingContract.stakingBalance(
         currentAccount
       );
 
